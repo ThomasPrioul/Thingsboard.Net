@@ -29,9 +29,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task SaveDeviceAttributesAsync(
-        Guid              deviceId,
-        TbAttributeScope  scope,
-        object            value,
+        Guid deviceId,
+        TbAttributeScope scope,
+        object value,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -44,9 +44,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task DeleteDeviceAttributesAsync(
-        Guid              deviceId,
-        TbAttributeScope  scope,
-        string[]          keys,
+        Guid deviceId,
+        TbAttributeScope scope,
+        string[] keys,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -78,10 +78,10 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task SaveEntityAttributesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        TbAttributeScope  scope,
-        object            value,
+        TbEntityType entityType,
+        Guid entityId,
+        TbAttributeScope scope,
+        object value,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -95,10 +95,10 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task DeleteEntityAttributesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        TbAttributeScope  scope,
-        string[]          keys,
+        TbEntityType entityType,
+        Guid entityId,
+        TbAttributeScope scope,
+        string[] keys,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -113,8 +113,8 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<string[]> GetAttributeKeysAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
+        TbEntityType entityType,
+        Guid entityId,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -130,9 +130,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<string[]> GetAttributeKeysByScopeAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        TbAttributeScope  scope,
+        TbEntityType entityType,
+        Guid entityId,
+        TbAttributeScope scope,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -144,8 +144,8 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<string[]> GetTimeSeriesKeysAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
+        TbEntityType entityType,
+        Guid entityId,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -164,9 +164,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task SaveEntityTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        object            telemetry,
+        TbEntityType entityType,
+        Guid entityId,
+        object telemetry,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -186,10 +186,10 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task SaveEntityTimeSeriesWithTtlAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        long              ttl,
-        object            telemetry,
+        TbEntityType entityType,
+        Guid entityId,
+        long ttl,
+        object telemetry,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -203,11 +203,11 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task DeleteEntityTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        bool?             rewriteLatestIfDeleted = null,
-        CancellationToken cancel                 = default);
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        bool? rewriteLatestIfDeleted = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Delete time-series for selected entity based on entity id, entity type and keys. Use 'startTs' and 'endTs' to specify time-range instead. Use 'rewriteLatestIfDeleted' to rewrite latest value (stored in separate table for performance) after deletion of the time range.
@@ -222,13 +222,14 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task DeleteEntityTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        DateTime          startTs,
-        DateTime          endTs,
-        bool?             rewriteLatestIfDeleted = null,
-        CancellationToken cancel                 = default);
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
+        bool? rewriteLatestIfDeleted = null,
+        bool? deleteLatest = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns all attributes that belong to specified entity. Use optional 'keys' parameter to return specific attributes. Example of the result:
@@ -240,9 +241,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<TbEntityLatestValue[]> GetAttributesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -256,10 +257,10 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<TbEntityLatestValue[]> GetAttributesByScopeAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        TbAttributeScope  scope,
-        string[]          keys,
+        TbEntityType entityType,
+        Guid entityId,
+        TbAttributeScope scope,
+        string[] keys,
         CancellationToken cancel = default);
 
     /// <summary>
@@ -278,16 +279,16 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>> GetTimeSeriesAsync(
-        TbEntityType          entityType,
-        Guid                  entityId,
-        string[]              keys,
-        DateTime              startTs,
-        DateTime              endTs,
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
         TbTimeSeriesAggregate agg,
-        long                  interval,
-        TbSortOrder?          orderBy            = null,
-        bool?                 useStrictDataTypes = null,
-        CancellationToken     cancel             = default);
+        long interval,
+        TbSortOrder? orderBy = null,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns a range of time-series values for specified entity. Returns not aggregated data by default.
@@ -304,15 +305,15 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>> GetTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        DateTime          startTs,
-        DateTime          endTs,
-        int?              limit              = null,
-        TbSortOrder?      orderBy            = null,
-        bool?             useStrictDataTypes = null,
-        CancellationToken cancel             = default);
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
+        int? limit = null,
+        TbSortOrder? orderBy = null,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default);
 
     /// <summary>
     /// Returns all time-series that belong to specified entity. Use optional 'keys' parameter to return specific time-series. The result is a JSON object. The format of the values depends on the 'useStrictDataTypes' parameter. By default, all time-series values are converted to strings:
@@ -324,9 +325,9 @@ public interface ITbTelemetryClient : ITbClient<ITbTelemetryClient>
     /// <param name="cancel"></param>
     /// <returns></returns>
     Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue>> GetLatestTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]?         keys,
-        bool?             useStrictDataTypes = null,
-        CancellationToken cancel             = default);
+        TbEntityType entityType,
+        Guid entityId,
+        string[]? keys,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default);
 }

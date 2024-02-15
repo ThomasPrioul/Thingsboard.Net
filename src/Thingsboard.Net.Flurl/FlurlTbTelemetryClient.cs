@@ -334,11 +334,12 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="entityId">A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'</param>
     /// <param name="keys">A string list of telemetry keys. If keys are not selected, the result will return all latest timeseries. For example, 'temperature,humidity'.</param>
     /// <param name="rewriteLatestIfDeleted">If the parameter is set to true, the latest telemetry will be rewritten in case that current latest value was removed, otherwise, in case that parameter is set to false the new latest value will not set.</param>
+    /// <param name="deleteLatest">If the parameter is set to true, the latest telemetry can be removed, otherwise, in case that parameter is set to false the latest value will not removed.</param>
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task DeleteEntityTimeSeriesAsync(TbEntityType entityType, Guid entityId, string[] keys, bool? rewriteLatestIfDeleted = null, CancellationToken cancel = default)
     {
-        return DeleteEntityTimeSeriesCoreAsync(entityType, entityId, keys, true, null, null, rewriteLatestIfDeleted, cancel);
+        return DeleteEntityTimeSeriesCoreAsync(entityType, entityId, keys, true, null, null, rewriteLatestIfDeleted, null, cancel);
     }
 
     /// <summary>
@@ -354,15 +355,16 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task DeleteEntityTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        DateTime          startTs,
-        DateTime          endTs,
-        bool?             rewriteLatestIfDeleted = null,
-        CancellationToken cancel                 = default)
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
+        bool? rewriteLatestIfDeleted = null,
+        bool? deleteLatest = null,
+        CancellationToken cancel = default)
     {
-        return DeleteEntityTimeSeriesCoreAsync(entityType, entityId, keys, false, startTs, endTs, rewriteLatestIfDeleted, cancel);
+        return DeleteEntityTimeSeriesCoreAsync(entityType, entityId, keys, false, startTs, endTs, rewriteLatestIfDeleted, deleteLatest, cancel);
     }
 
     /// <summary>
@@ -379,14 +381,15 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     private Task DeleteEntityTimeSeriesCoreAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        bool?             deleteAllDataForKeys   = null,
-        DateTime?         startTs                = null,
-        DateTime?         endTs                  = null,
-        bool?             rewriteLatestIfDeleted = null,
-        CancellationToken cancel                 = default)
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        bool? deleteAllDataForKeys = null,
+        DateTime? startTs = null,
+        DateTime? endTs = null,
+        bool? rewriteLatestIfDeleted = null,
+        bool? deleteLatest = null,
+        CancellationToken cancel = default)
     {
         if (keys == null) throw new ArgumentNullException(nameof(keys));
         if (keys.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(keys));
@@ -403,11 +406,12 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
             await builder.CreateRequest()
                 .AppendPathSegment($"api/plugins/telemetry/{entityType}/{entityId}/timeseries/delete")
                 .WithOAuthBearerToken(await builder.GetAccessTokenAsync())
-                .SetQueryParam("keys",                   keys.JoinWith(","))
-                .SetQueryParam("deleteAllDataForKeys",   deleteAllDataForKeys)
-                .SetQueryParam("startTs",                startTs?.ToJavaScriptTicks())
-                .SetQueryParam("endTs",                  endTs?.ToJavaScriptTicks())
-                .SetQueryParam("rewriteLatestIfDeleted", rewriteLatestIfDeleted)
+                .SetQueryParam("keys", keys.JoinWith(","))
+                .SetQueryParam("deleteAllDataForKeys", deleteAllDataForKeys?.ToString().ToLower())
+                .SetQueryParam("startTs", startTs?.ToJavaScriptTicks())
+                .SetQueryParam("endTs", endTs?.ToJavaScriptTicks())
+                .SetQueryParam("rewriteLatestIfDeleted", rewriteLatestIfDeleted?.ToString().ToLower())
+                .SetQueryParam("deleteLatest", deleteLatest?.ToString().ToLower())
                 .DeleteAsync(cancel);
         });
     }
@@ -490,16 +494,16 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>> GetTimeSeriesAsync(
-        TbEntityType          entityType,
-        Guid                  entityId,
-        string[]              keys,
-        DateTime              startTs,
-        DateTime              endTs,
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
         TbTimeSeriesAggregate agg,
-        long                  interval,
-        TbSortOrder?          orderBy            = null,
-        bool?                 useStrictDataTypes = null,
-        CancellationToken     cancel             = default)
+        long interval,
+        TbSortOrder? orderBy = null,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default)
     {
         if (agg == TbTimeSeriesAggregate.NONE)
             throw new ArgumentException("Aggregation function can not be NONE if interval is specified.", nameof(agg));
@@ -522,15 +526,15 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>> GetTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]          keys,
-        DateTime          startTs,
-        DateTime          endTs,
-        int?              limit              = null,
-        TbSortOrder?      orderBy            = null,
-        bool?             useStrictDataTypes = null,
-        CancellationToken cancel             = default)
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
+        int? limit = null,
+        TbSortOrder? orderBy = null,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default)
     {
         return GetTimeSeriesCoreAsync(entityType, entityId, keys, startTs, endTs, null, limit, TbTimeSeriesAggregate.NONE, orderBy, useStrictDataTypes, cancel);
     }
@@ -552,17 +556,17 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>> GetTimeSeriesCoreAsync(
-        TbEntityType           entityType,
-        Guid                   entityId,
-        string[]               keys,
-        DateTime               startTs,
-        DateTime               endTs,
-        long?                  interval           = null,
-        int?                   limit              = null,
-        TbTimeSeriesAggregate? agg                = null,
-        TbSortOrder?           orderBy            = null,
-        bool?                  useStrictDataTypes = null,
-        CancellationToken      cancel             = default)
+        TbEntityType entityType,
+        Guid entityId,
+        string[] keys,
+        DateTime startTs,
+        DateTime endTs,
+        long? interval = null,
+        int? limit = null,
+        TbTimeSeriesAggregate? agg = null,
+        TbSortOrder? orderBy = null,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default)
     {
         if (keys == null) throw new ArgumentNullException(nameof(keys));
         if (keys.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(keys));
@@ -579,16 +583,16 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
             var request = builder.CreateRequest()
                 .AppendPathSegment($"api/plugins/telemetry/{entityType}/{entityId}/values/timeseries")
                 .WithOAuthBearerToken(await builder.GetAccessTokenAsync())
-                .SetQueryParam("keys",               keys.JoinWith(","))
-                .SetQueryParam("startTs",            startTs.ToJavaScriptTicks())
-                .SetQueryParam("endTs",              endTs.ToJavaScriptTicks())
-                .SetQueryParam("interval",           interval)
-                .SetQueryParam("limit",              limit)
-                .SetQueryParam("agg",                agg)
-                .SetQueryParam("orderBy",            orderBy)
+                .SetQueryParam("keys", keys.JoinWith(","))
+                .SetQueryParam("startTs", startTs.ToJavaScriptTicks())
+                .SetQueryParam("endTs", endTs.ToJavaScriptTicks())
+                .SetQueryParam("interval", interval)
+                .SetQueryParam("limit", limit)
+                .SetQueryParam("agg", agg)
+                .SetQueryParam("orderBy", orderBy)
                 .SetQueryParam("useStrictDataTypes", useStrictDataTypes);
 
-            var result    = await request.GetJsonAsync<Dictionary<string, TbEntityTsValue[]>>(cancel);
+            var result = await request.GetJsonAsync<Dictionary<string, TbEntityTsValue[]>>(cancel);
             var converted = result.ToDictionary(x => new TbEntityField(x.Key, TbEntityFieldType.TIME_SERIES), x => x.Value);
 
             return new ReadOnlyDictionary<TbEntityField, TbEntityTsValue[]>(converted);
@@ -605,11 +609,11 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
     /// <param name="cancel"></param>
     /// <returns></returns>
     public Task<ReadOnlyDictionary<TbEntityField, TbEntityTsValue>> GetLatestTimeSeriesAsync(
-        TbEntityType      entityType,
-        Guid              entityId,
-        string[]?         keys,
-        bool?             useStrictDataTypes = null,
-        CancellationToken cancel             = default)
+        TbEntityType entityType,
+        Guid entityId,
+        string[]? keys,
+        bool? useStrictDataTypes = null,
+        CancellationToken cancel = default)
     {
         var policy = RequestBuilder.GetPolicyBuilder<ReadOnlyDictionary<TbEntityField, TbEntityTsValue>>()
             .RetryOnHttpTimeout()
@@ -622,10 +626,10 @@ public class FlurlTbTelemetryClient : FlurlTbClient<ITbTelemetryClient>, ITbTele
             var request = builder.CreateRequest()
                 .AppendPathSegment($"api/plugins/telemetry/{entityType}/{entityId}/values/timeseries")
                 .WithOAuthBearerToken(await builder.GetAccessTokenAsync())
-                .SetQueryParam("keys",               keys?.JoinWith(","))
+                .SetQueryParam("keys", keys?.JoinWith(","))
                 .SetQueryParam("useStrictDataTypes", useStrictDataTypes);
 
-            var result    = await request.GetJsonAsync<Dictionary<string, TbEntityTsValue[]>>(cancel);
+            var result = await request.GetJsonAsync<Dictionary<string, TbEntityTsValue[]>>(cancel);
             var converted = result.ToDictionary(x => new TbEntityField(x.Key, TbEntityFieldType.TIME_SERIES), x => x.Value.FirstOrDefault());
 
             return new ReadOnlyDictionary<TbEntityField, TbEntityTsValue>(converted);
